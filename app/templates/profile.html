@@ -3,12 +3,44 @@
 <head>
     <meta charset="utf-8">
     <title>Profile</title>
+    <style>
+        .flash {
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid transparent;
+            border-radius: 4px;
+        }
+        .flash-success {
+            color: #155724;
+            background-color: #d4edda;
+            border-color: #c3e6cb;
+        }
+        .flash-error {
+            color: #721c24;
+            background-color: #f8d7da;
+            border-color: #f5c6cb;
+        }
+    </style>
 </head>
 <body>
     <h1>Welcome, {{ current_user.username }}!</h1>
     <a href="{{ url_for('logout') }}">Logout</a>
 
     <h2>Create Docker Container</h2>
+
+    <!-- Flash messages -->
+    {% with messages = get_flashed_messages(with_categories=True) %}
+        {% if messages %}
+            <div class="flash">
+                {% for category, message in messages %}
+                    <div class="flash-{{ category }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
     <form method="post" action="">
         <label for="image">Docker Image:</label>
         <input type="text" id="image" name="image" required>

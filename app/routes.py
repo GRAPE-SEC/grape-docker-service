@@ -94,22 +94,28 @@ def protected_page():
 @login_required
 def profile():
     if request.method == 'POST':
+        image = request.form.get('image', '')
         command = request.form.get('command', '')
-    else:
+        
         if current_user.tickets > 0:
             try:
-                success=1
-                if(success):
-                    container_id = response.json().get('container_id')
-                    flash(f'컨테이너가 성공적으로 생성되었습니다. ID: {container_id}')
+                # TODO : Docker 컨테이너 생성 로직
+                success = 1
+                
+                if success:
+                    # TODO : Container ID GET 로직
+                    container_id = "CONTAINER ID"
+                    flash(f'컨테이너가 성공적으로 생성되었습니다. ID: {container_id}', 'success')
                     # 티켓 수 감소
                     current_user.tickets -= 1
                     db.session.commit()
                 else:
-                    flash(f'컨테이너 생성 오류: {response.json().get("error", "알 수 없는 오류")}')
+                    # TODO : 에러 처리
+                    error_message = "CONTAINER GEN ERROR"
+                    flash(f'컨테이너 생성 오류: {error_message}', 'error')
             except Exception as e:
-                flash(f'오류 발생: {str(e)}')
+                flash(f'오류 발생: {str(e)}', 'error')
         else:
-            flash('사용 가능한 티켓이 없습니다. 지원 팀에 문의하여 티켓을 추가하세요.')
+            flash('사용 가능한 티켓이 없습니다. 지원 팀에 문의하여 티켓을 추가하세요.', 'error')
 
     return render_template('profile.html')
