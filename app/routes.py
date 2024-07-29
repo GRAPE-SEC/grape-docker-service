@@ -95,6 +95,11 @@ def profile():
     if request.method == 'POST':
         container_name = request.form.get('container_name', '')
         unique_container_name = f"{container_name}_{api_key}"
+        
+        if '_' in container_name:
+            flash('컨테이너 이름에는 언더스코어(_) 문자를 사용할 수 없습니다.', 'error')
+            return render_template('profile.html')
+
         command = request.form.get('command', '')
         
         if current_user.tickets > 0:
@@ -109,7 +114,7 @@ def profile():
                     '445/tcp': available_ports[1]  # 포트 445를 available_ports[1]에 매핑
                 }
                 # Docker 컨테이너 생성 및 실행
-                result = create_and_run_container(container_name, port_mappings)
+                result = create_and_run_container(unique_container_name, port_mappings)
                 
                 if result['success']:
                     # TODO : Container ID GET 로직
