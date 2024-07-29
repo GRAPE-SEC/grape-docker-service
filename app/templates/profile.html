@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Profile</title>
+</head>
+<body>
+    <h1>Welcome, {{ current_user.username }}!</h1>
+    <a href="{{ url_for('logout') }}">Logout</a>
+
+    <h2>Create Docker Container</h2>
+    <form method="post" action="{{ url_for('create_container') }}">
+        <label for="image">Docker Image:</label>
+        <input type="text" id="image" name="image" required>
+        <br>
+        <label for="command">Command (optional):</label>
+        <input type="text" id="command" name="command">
+        <br>
+        <button type="submit">Create Container</button>
+    </form>
+</body>
+</html>

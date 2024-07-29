@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Admin Page</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        table, th, td {
+            border: 1px solid black;
+        }
+        th, td {
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+    <h2>Admin Page</h2>
+    
+    <h3>Create User</h3>
+    <form method="post" action="{{ url_for('admin') }}">
+        <input type="hidden" name="action" value="create">
+        <label for="username">Username:</label>
+        <input type="text" id="username" name="username" required>
+        <br>
+        <label for="email">Email:</label>
+        <!-- <input type="email" id="email" name="email" required> -->
+        <input id="email" name="email" required>
+        <br>
+        <button type="submit">Create User</button>
+    </form>
+
+    <h3>Delete User</h3>
+    <form method="post" action="{{ url_for('admin') }}">
+        <input type="hidden" name="action" value="delete">
+        <label for="user_id">User ID:</label>
+        <input type="text" id="user_id" name="user_id" required>
+        <br>
+        <button type="submit">Delete User</button>
+    </form>
+
+    <h3>Update Tickets</h3>
+    <form method="post" action="{{ url_for('admin') }}">
+        <input type="hidden" name="action" value="update_tickets">
+        <label for="user_id">User ID:</label>
+        <input type="text" id="user_id" name="user_id" required>
+        <br>
+        <label for="tickets">Tickets:</label>
+        <input type="number" id="tickets" name="tickets" min="0" value="0">
+        <br>
+        <button type="submit">Update Tickets</button>
+    </form>
+
+    <h3>Users</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Username</th>
+                <th>Email</th>
+                <th>API Key</th>
+                <th>Tickets</th>  <!-- 티켓 수를 표시하는 열 추가 -->
+            </tr>
+        </thead>
+        <tbody>
+            {% for user in users %}
+                <tr>
+                    <td>{{ user.id }}</td>
+                    <td>{{ user.username }}</td>
+                    <td>{{ user.email }}</td>
+                    <td>{{ user.api_key }}</td>
+                    <td>{{ user.tickets }}</td>  <!-- 사용자 티켓 수를 표시 -->
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <h3>Logs</h3>
+            <ul>
+                {% for message in messages %}
+                    <li>{{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    {% endwith %}
+
+    
+</body>
+</html>
+
