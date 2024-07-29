@@ -1,6 +1,5 @@
 from flask import render_template, redirect, url_for, request, flash, abort
 from flask_login import login_user, login_required, logout_user, current_user
-from flask_mail import Mail, Message
 
 from app import app, db, login_manager  # login_manager를 app 모듈에서 임포트
 from app.models import User
@@ -96,30 +95,21 @@ def protected_page():
 def profile():
     if request.method == 'POST':
         command = request.form.get('command', '')
-
+    else:
+        if current_user.tickets > 0:
+            try:
+                success=1
+                if(success):
+                    container_id = response.json().get('container_id')
+                    flash(f'컨테이너가 성공적으로 생성되었습니다. ID: {container_id}')
+                    # 티켓 수 감소
+                    current_user.tickets -= 1
+                    db.session.commit()
+                else:
+                    flash(f'컨테이너 생성 오류: {response.json().get("error", "알 수 없는 오류")}')
+            except Exception as e:
+                flash(f'오류 발생: {str(e)}')
         else:
-            if current_user.tickets > 0:
-                try:
-                    # API 엔드포인트를 호출하여 Docker 컨테이너 생성
-                    response = requests.post(
-                        url_for('create_container', _external=True),
-                        json={'image': image, 'command': command},
-                        headers={'Authorization': f'Bearer {current_user.api_key}'}
-                    )
-                    
-                    if response.status_code == 200:
-                        container_id = response.json().get('container_id')
-                        flash(f'컨테이너가 성공적으로 생성되었습니다. ID: {container_id}')
-                        
-                        # 티켓 수 감소
-                        current_user.tickets -= 1
-                        db.session.commit()
-                    else:
-                        flash(f'컨테이너 생성 오류: {response.json().get("error", "알 수 없는 오류")}')
-                
-                except Exception as e:
-                    flash(f'오류 발생: {str(e)}')
-            else:
-                flash('사용 가능한 티켓이 없습니다. 지원 팀에 문의하여 티켓을 추가하세요.')
+            flash('사용 가능한 티켓이 없습니다. 지원 팀에 문의하여 티켓을 추가하세요.')
 
     return render_template('profile.html')
