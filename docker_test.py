@@ -1,5 +1,9 @@
 import docker
 
+# 상수 정의
+DOCKER_START_PORT = 9000
+DOCKER_END_PORT = 9999
+
 # Docker 클라이언트 초기화
 client = docker.from_env()
 
@@ -53,7 +57,7 @@ def get_used_ports():
                 
     return used_ports
 
-def find_available_ports(start=9000, end=9999, count=1):
+def find_available_ports(start=DOCKER_START_PORT, end=DOCKER_END_PORT, count=1):
     """사용 가능한 포트를 찾습니다."""
     used_ports = get_used_ports()
     available_ports = []
