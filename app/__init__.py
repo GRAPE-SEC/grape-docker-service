@@ -12,4 +12,4 @@ db = SQLAlchemy(app)
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
 
-from . import routes, models  # 앱 초기화 후 라우트와 모델을 임포트
+from . import routes, models, docker_api  # 앱 초기화 후 라우트와 모델을 임포트

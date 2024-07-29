@@ -4,10 +4,8 @@ from flask_login import login_user, login_required, logout_user, current_user
 from app import app, db, login_manager  # login_manager를 app 모듈에서 임포트
 from app.models import User
 
-import docker
+from app.docker_api import *
 
-# Docker 클라이언트 초기화
-client = docker.from_env()
 
 # flask_login 에 필요한 user_loader
 # id 를 기반으로 사용자 객체를 반환
@@ -93,26 +91,37 @@ def protected_page():
 @app.route('/profile', methods=['GET', 'POST'])
 @login_required
 def profile():
+    api_key = current_user.api_key
     if request.method == 'POST':
-        image = request.form.get('image', '')
+        container_name = request.form.get('container_name', '')
+        unique_container_name = f"{container_name}_{api_key}"
         command = request.form.get('command', '')
         
         if current_user.tickets > 0:
             try:
-                # TODO : Docker 컨테이너 생성 로직
-                success = 1
+                # 여러 개의 포트 매핑 예시
+                available_ports = find_available_ports(count=5)  # 예를 들어 3개의 포트를 찾음
+                print(available_ports)
                 
-                if success:
+                # 포트 매핑 설정
+                port_mappings = {
+                    '22/tcp': available_ports[0],  # 포트 22를 available_ports[0]에 매핑
+                    '445/tcp': available_ports[1]  # 포트 445를 available_ports[1]에 매핑
+                }
+                # Docker 컨테이너 생성 및 실행
+                result = create_and_run_container(container_name, port_mappings)
+                
+                if result['success']:
                     # TODO : Container ID GET 로직
-                    container_id = "CONTAINER ID"
+                    container_id = result['container_id']
+
                     flash(f'컨테이너가 성공적으로 생성되었습니다. ID: {container_id}', 'success')
                     # 티켓 수 감소
                     current_user.tickets -= 1
                     db.session.commit()
                 else:
                     # TODO : 에러 처리
-                    error_message = "CONTAINER GEN ERROR"
-                    flash(f'컨테이너 생성 오류: {error_message}', 'error')
+                    flash(f'컨테이너 생성 오류: {result["error"]}', 'error')
             except Exception as e:
                 flash(f'오류 발생: {str(e)}', 'error')
         else:
