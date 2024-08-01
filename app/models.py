@@ -10,6 +10,7 @@ class User(db.Model, UserMixin):
     email = db.Column(db.String(150), unique=True, nullable=False)
     api_key = db.Column(db.String(36), unique=True, nullable=True)  # API 키 추가
     tickets = db.Column(db.Integer, default=0) # docker container 생성 티켓
+    role = db.Column(db.String(50), default='user')
 
     def generate_api_key(self):
         # API 키를 랜덤하게 생성

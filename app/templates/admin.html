@@ -40,7 +40,7 @@
     <h3>Delete User</h3>
     <form method="post" action="{{ url_for('admin') }}">
         <input type="hidden" name="action" value="delete">
-        <label for="user_id">User ID:</label>
+        <label for="user_id">User ID Select:</label>
         <input type="text" id="user_id" name="user_id" required>
         <br>
         <button type="submit">Delete User</button>
@@ -49,13 +49,37 @@
     <h3>Update Tickets</h3>
     <form method="post" action="{{ url_for('admin') }}">
         <input type="hidden" name="action" value="update_tickets">
-        <label for="user_id">User ID:</label>
+        <label for="user_id">User ID Select:</label>
         <input type="text" id="user_id" name="user_id" required>
         <br>
         <label for="tickets">Tickets:</label>
         <input type="number" id="tickets" name="tickets" min="0" value="0">
         <br>
         <button type="submit">Update Tickets</button>
+    </form>
+    
+    <h3>Give Admin to User</h3>
+    <strong>주의: admin 계정은 manager 와 user 을 관리할 수 있습니다.</strong>
+    <strong>manager 계정은 여러개이며, admin 계정은 한개입니다. admin 권한을 넘겨주는 경우, 새 admin 이 처음 로그인 시 기존 admin 은 삭제됩니다.</strong>
+    <form method="post" action="{{ url_for('admin') }}">
+        <input type="hidden" name="action" value="escalate_permission">
+        <label for="user_id">User ID Select:</label>
+            <input type="text" id="user_id" name="user_id" required>
+            <br>
+            
+            <fieldset>
+                <legend>Role:</legend>
+                
+                <input type="radio" id="role_user" name="role" value="user" checked>
+                <label for="role_user">User</label><br>
+                
+                <input type="radio" id="role_manager" name="role" value="manager">
+                <label for="role_manager">Manager</label><br>
+                
+                <input type="radio" id="role_admin" name="role" value="admin">
+                <label for="role_admin">Admin</label>
+            </fieldset>
+        <button type="submit">Update Role</button>
     </form>
 
     <h3>Users</h3>

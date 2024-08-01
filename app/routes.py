@@ -14,7 +14,7 @@ def load_user(user_id):
     return User.query.get(int(user_id))
 
 
-@app.route('/login', methods=['GET', 'POST'])
+@app.route('/', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
         api_key = request.form.get('api_key')
@@ -35,7 +35,13 @@ def logout():
     return redirect(url_for('login'))
 
 @app.route('/admin', methods=['GET', 'POST'])
+# @login_required
 def admin():
+    # Check if the current user has the role 'admin' or 'manager'
+    # if current_user.role not in ['admin', 'manager']:
+    #     flash('You do not have permission to access this page.')
+    #     return redirect(url_for('/'))  # 또는 다른 적절한 페이지로 리다이렉트
+    
     if request.method == 'POST':
         action = request.form.get('action')
         username = request.form.get('username')
@@ -69,6 +75,18 @@ def admin():
                 flash('User tickets updated successfully.')
             else:
                 flash('User not found.')
+
+        elif action == 'escalate_permission':
+            if(current_user.role=="admin"):
+                user = User.query.get(user_id)
+                if user:
+                    user.role = 'admin'
+                    db.session.commit()
+                    flash('User Permission Updated')
+                else:
+                    flash('User not found')
+            else:
+                flash("You are not admin")
 
     users = User.query.all()
     return render_template('admin.html', users=users)
