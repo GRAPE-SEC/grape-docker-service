@@ -13,7 +13,6 @@ from app.docker_api import *
 def load_user(user_id):
     return User.query.get(int(user_id))
 
-
 @app.route('/', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
@@ -24,7 +23,7 @@ def login():
             flash('Logged in successfully!')
             if(user.role == "user"):
                 return redirect(url_for('profile'))
-            elif(user.role == "admin" or user.role == "manager"):
+            elif(current_user.role in ['admin', 'manager','new_admin']):
                 return redirect(url_for('admin'))
         else:
             flash('Invalid API key.')
@@ -41,9 +40,18 @@ def logout():
 @login_required
 def admin():
     # Check if the current user has the role 'admin' or 'manager'
-    if current_user.role not in ['admin', 'manager']:
+    if current_user.role not in ['admin', 'manager','new_admin']:
         flash('You do not have permission to access this page.')
         return redirect(url_for('/'))  # 또는 다른 적절한 페이지로 리다이렉트
+    
+    # 기존 admin 이 새로 설정한 admin 이 접속이 안되면 아무도 admin 을 사용할 수 없음.
+    # 이를 막기 위해, 새로 설정한 admin 은 임시로 new_admin 이 되며, 한번이라도 접속하면 기존 admin이 삭제됨
+    if(current_user.role == "new_admin"):
+        admins = User.query.filter_by(role="admin").all()
+        for old_admin in admins:
+            old_admin.role = 'user'
+        current_user.role = "admin"
+        db.session.commit()
     
     if request.method == 'POST':
         action = request.form.get('action')
@@ -83,7 +91,15 @@ def admin():
             if(current_user.role=="admin"):
                 user = User.query.get(user_id)
                 if user:
-                    user.role = 'admin'
+                    # 새 관리자의 역할을 'new_admin' 으로 변경. 최초 로그인 시 기존 admin 이 삭제되고 new_admin 이 admin 이 됨
+
+                    # 기존의 모든 `new_admin` 사용자 user 로 변경(new_admin 이 여러명 있으면 안됨)
+                    existing_new_admins = User.query.filter_by(role='new_admin').all()
+                    for old_new_admin in existing_new_admins:
+                        old_new_admin.role = "user"
+
+                    # 새 new_admin 설정
+                    user.role = 'new_admin'
                     db.session.commit()
                     flash('User Permission Updated')
                 else:
@@ -93,19 +109,6 @@ def admin():
 
     users = User.query.all()
     return render_template('admin.html', users=users)
-
-@app.before_request
-def require_api_key():
-    # 모든 요청에서 API 키를 확인합니다
-    if request.endpoint in ['protected_page', 'profile']:
-        api_key = request.headers.get('api_key')
-        if not api_key or not User.query.filter_by(api_key=api_key).first():
-            abort(403)  # API 키가 없거나 유효하지 않을 경우 접근 거부
-
-
-@app.route('/protected_page')
-def protected_page():
-    return 'This is a protected page. You have valid API key!'
 
 # 유저 페이지(API 키에 따라 다른 페이지)
 @app.route('/profile', methods=['GET', 'POST'])
