@@ -115,20 +115,22 @@ def admin():
 @login_required
 def profile():
     api_key = current_user.api_key
+    container_info = None
+
     if request.method == 'POST':
         container_name = request.form.get('container_name', '')
-        unique_container_name = f"{container_name}_{api_key}"
+        unique_container_name = f"{container_name}:{api_key}"
         
         if '_' in container_name:
-            flash('컨테이너 이름에는 언더스코어(_) 문자를 사용할 수 없습니다.', 'error')
-            return render_template('profile.html')
+            flash('컨테이너 이름에는 콜론(:) 문자를 사용할 수 없습니다.', 'error')
+            return render_template('profile.html', container_info=container_info)
 
         command = request.form.get('command', '')
         
         if current_user.tickets > 0:
             try:
                 # 여러 개의 포트 매핑 예시
-                available_ports = find_available_ports(count=5)  # 예를 들어 3개의 포트를 찾음
+                available_ports = find_available_ports(count=5)  # 예를 들어 5개의 포트를 찾음
                 print(available_ports)
                 
                 # 포트 매핑 설정
@@ -140,19 +142,20 @@ def profile():
                 result = create_and_run_container(unique_container_name, port_mappings)
                 
                 if result['success']:
-                    # TODO : Container ID GET 로직
                     container_id = result['container_id']
 
+                    # 컨테이너 정보 조회
+                    container_info = get_container_info_by_id(container_id)
+                    
                     flash(f'컨테이너가 성공적으로 생성되었습니다. ID: {container_id}', 'success')
                     # 티켓 수 감소
                     current_user.tickets -= 1
                     db.session.commit()
                 else:
-                    # TODO : 에러 처리
                     flash(f'컨테이너 생성 오류: {result["error"]}', 'error')
             except Exception as e:
                 flash(f'오류 발생: {str(e)}', 'error')
         else:
             flash('사용 가능한 티켓이 없습니다. 지원 팀에 문의하여 티켓을 추가하세요.', 'error')
 
-    return render_template('profile.html')
+    return render_template('profile.html', container_info=container_info)

@@ -24,26 +24,22 @@ def create_and_run_container(container_name, port_mappings):
         return {'success': False, 'error': f'오류 발생: {str(e)}'}
 
 
-def get_container_info(container_id):
+def get_container_info_by_id(container_id):
     try:
         # 컨테이너 객체를 가져오기
         container = client.containers.get(container_id)
         # 컨테이너 정보 조회
         info = {
             'ID': container.id,
-            'Image': container.image.tags,
-            'Status': container.status,
-            'Ports': container.attrs['NetworkSettings']['Ports'],
-            'Command': container.attrs['Config']['Cmd'],
-            'Created': container.attrs['Created']
+            'Ports': container.attrs['NetworkSettings']['Ports']
         }
-        print(f'컨테이너 정보: {info}')
+        return info
     except docker.errors.NotFound:
-        print('지정된 컨테이너를 찾을 수 없습니다.')
+        return {'ID': container_id, 'Ports': 'Not found'}
     except docker.errors.APIError as e:
-        print(f'Docker API 오류 발생: {str(e)}')
+        return {'ID': container_id, 'Ports': f'Docker API 오류 발생: {str(e)}'}
     except Exception as e:
-        print(f'오류 발생: {str(e)}')
+        return {'ID': container_id, 'Ports': f'오류 발생: {str(e)}'}
 
 def get_used_ports():
     """현재 사용 중인 포트를 반환합니다."""
