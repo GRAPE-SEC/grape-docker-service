@@ -96,7 +96,6 @@ def require_api_key():
     # 모든 요청에서 API 키를 확인합니다
     if request.endpoint in ['protected_page', 'profile']:
         api_key = request.headers.get('api_key')
-        return api_key
         if not api_key or not User.query.filter_by(api_key=api_key).first():
             abort(403)  # API 키가 없거나 유효하지 않을 경우 접근 거부
 

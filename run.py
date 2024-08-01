@@ -23,12 +23,12 @@ if __name__ == '__main__':
             
             db.session.commit()
 
-        # 새 admin 을 추가 후, console 에 생성한 admin 의 api-key 출력
-        new_admin = User(username='default_admin', email='',role='admin')
-        new_admin.generate_api_key()
-        db.session.add(new_admin)
-        db.session.commit()
-        print(f"New admin created with API key: {new_admin.api_key}")
+            # 새 admin 을 추가 후, console 에 생성한 admin 의 api-key 출력
+            new_admin = User(username='default_admin', email='',role='admin')
+            new_admin.generate_api_key()
+            db.session.add(new_admin)
+            db.session.commit()
+            print(f"New admin created with API key: {new_admin.api_key}")
 
 
     app.run(host='0.0.0.0', port=8000, debug=True)
