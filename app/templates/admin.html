@@ -91,6 +91,7 @@
                 <th>Email</th>
                 <th>API Key</th>
                 <th>Tickets</th>  <!-- 티켓 수를 표시하는 열 추가 -->
+                <th>Role</th>
             </tr>
         </thead>
         <tbody>
@@ -101,6 +102,7 @@
                     <td>{{ user.email }}</td>
                     <td>{{ user.api_key }}</td>
                     <td>{{ user.tickets }}</td>  <!-- 사용자 티켓 수를 표시 -->
+                    <td>{{ user.role }}</td>
                 </tr>
             {% endfor %}
         </tbody>

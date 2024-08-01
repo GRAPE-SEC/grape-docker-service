@@ -22,7 +22,10 @@ def login():
         if user:
             login_user(user)
             flash('Logged in successfully!')
-            return redirect(url_for('profile'))
+            if(user.role == "user"):
+                return redirect(url_for('profile'))
+            elif(user.role == "admin" or user.role == "manager"):
+                return redirect(url_for('admin'))
         else:
             flash('Invalid API key.')
     return render_template('login.html')
@@ -35,12 +38,12 @@ def logout():
     return redirect(url_for('login'))
 
 @app.route('/admin', methods=['GET', 'POST'])
-# @login_required
+@login_required
 def admin():
     # Check if the current user has the role 'admin' or 'manager'
-    # if current_user.role not in ['admin', 'manager']:
-    #     flash('You do not have permission to access this page.')
-    #     return redirect(url_for('/'))  # 또는 다른 적절한 페이지로 리다이렉트
+    if current_user.role not in ['admin', 'manager']:
+        flash('You do not have permission to access this page.')
+        return redirect(url_for('/'))  # 또는 다른 적절한 페이지로 리다이렉트
     
     if request.method == 'POST':
         action = request.form.get('action')
