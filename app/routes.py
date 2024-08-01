@@ -115,17 +115,9 @@ def admin():
 @login_required
 def profile():
     api_key = current_user.api_key
-    container_info = None
 
     if request.method == 'POST':
         container_name = request.form.get('container_name', '')
-        unique_container_name = f"{container_name}:{api_key}"
-        
-        if '_' in container_name:
-            flash('컨테이너 이름에는 콜론(:) 문자를 사용할 수 없습니다.', 'error')
-            return render_template('profile.html', container_info=container_info)
-
-        command = request.form.get('command', '')
         
         if current_user.tickets > 0:
             try:
@@ -139,13 +131,10 @@ def profile():
                     '445/tcp': available_ports[1]  # 포트 445를 available_ports[1]에 매핑
                 }
                 # Docker 컨테이너 생성 및 실행
-                result = create_and_run_container(unique_container_name, port_mappings)
+                result = create_and_run_container(container_name, port_mappings)
                 
                 if result['success']:
                     container_id = result['container_id']
-
-                    # 컨테이너 정보 조회
-                    container_info = get_container_info_by_id(container_id)
                     
                     flash(f'컨테이너가 성공적으로 생성되었습니다. ID: {container_id}', 'success')
                     # 티켓 수 감소
@@ -157,5 +146,5 @@ def profile():
                 flash(f'오류 발생: {str(e)}', 'error')
         else:
             flash('사용 가능한 티켓이 없습니다. 지원 팀에 문의하여 티켓을 추가하세요.', 'error')
-
-    return render_template('profile.html', container_info=container_info)
+    
+    return render_template('profile.html')

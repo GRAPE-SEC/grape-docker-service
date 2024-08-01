@@ -1,4 +1,6 @@
 import docker
+import os
+import binascii
 
 # 상수 정의
 DOCKER_START_PORT = 9000
@@ -8,13 +10,14 @@ DOCKER_END_PORT = 9999
 client = docker.from_env()
 
 def create_and_run_container(container_name, port_mappings):
+    unique_container_name = f"{container_name}_{binascii.hexlify(os.urandom(24)).decode()}"
     try:
         # Docker 컨테이너 생성 및 실행
         container = client.containers.run(
             "ubuntu",               # 이미지 이름
             detach=True,            # 백그라운드에서 실행
             tty=True,               # 터미널 연결
-            name=container_name,    # 컨테이너 이름
+            name=unique_container_name,    # 컨테이너 이름
             ports=port_mappings     # 포트 포워딩
         )
         return {'success': True, 'container_id': container.id}  # 성공 시 컨테이너 ID 반환
@@ -65,3 +68,4 @@ def find_available_ports(start=DOCKER_START_PORT, end=DOCKER_END_PORT, count=1):
                 return available_ports
 
     raise RuntimeError("No available ports in the specified range.")
+

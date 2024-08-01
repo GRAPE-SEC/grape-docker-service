@@ -20,6 +20,17 @@
             background-color: #f8d7da;
             border-color: #f5c6cb;
         }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        table, th, td {
+            border: 1px solid black;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
     </style>
 </head>
 <body>
@@ -47,25 +58,26 @@
         <br>
         <button type="submit">Create Container</button>
     </form>
-     <!-- Display container info if available -->
-     {% if container_info %}
-     <h2>Container Information</h2>
-     <table>
-         <tr>
-             <th>ID</th>
-             <th>Ports</th>
-         </tr>
-         <tr>
-             <td>{{ container_info.ID }}</td>
-             <td>
-                 <ul>
-                     {% for port, host_port in container_info.Ports.items() %}
-                         <li>{{ port }} -> {{ host_port }}</li>
-                     {% endfor %}
-                 </ul>
-             </td>
-         </tr>
-     </table>
-     {% endif %}
+
+    <h2>Your Containers</h2>
+    {% if containers %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Container Name</th>
+                    <th>Container ID</th>
+                    <th>Ports</th>
+                </tr>
+            </thead>
+            <ul>
+                {% for container in containers %}
+                    <li>{{ container }}</li>
+                {% endfor %}
+            </ul>
+        </table>
+    {% else %}
+        <p>No containers found for your API key.</p>
+    {% endif %}
+
 </body>
 </html>
